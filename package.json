@@ -1,0 +1,17 @@
+{
+  "name": "manta-weather-app",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.30.2",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @manta/web --filter @manta/api dev",
+    "build": "pnpm --filter @manta/web build",
+    "test": "pnpm -r test:run",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.0",
+    "typescript": "^5.8.0"
+  }
+}

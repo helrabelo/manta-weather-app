@@ -1,0 +1,13 @@
+name = "manta-weather-api"
+main = "src/index.ts"
+compatibility_date = "2025-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[durable_objects]
+bindings = [
+  { name = "WEATHER_STORE", class_name = "WeatherStore" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["WeatherStore"]
