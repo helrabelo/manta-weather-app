@@ -1,10 +1,11 @@
-import { useState, useCallback, useSyncExternalStore } from 'react'
+import { useState, useCallback, useEffect, useSyncExternalStore } from 'react'
 import type { GeocodedCity, RecentSearch } from '@manta/shared'
 import { AppShell } from '@/components/layout/AppShell'
 import { CitySearch } from '@/components/search/CitySearch'
 import { WeatherDisplay } from '@/components/weather/WeatherDisplay'
 import { RecentSearches } from '@/components/recent/RecentSearches'
 import { WeatherSkeleton } from '@/components/ui/WeatherSkeleton'
+import { ContentTransition } from '@/components/ui/ContentTransition'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useWeatherQuery } from '@/api/hooks/useWeather'
 import { useRecentSearches } from '@/api/hooks/useRecentSearches'
@@ -64,17 +65,35 @@ function App() {
   const geo = useGeolocation()
   const [selectedCoords, setSelectedCoords] = useState<{ latitude: number; longitude: number } | null>(null)
   const [cityName, setCityName] = useState<string | null>(null)
+  const [pendingCityName, setPendingCityName] = useState<string | null>(null)
 
   const activeCoords = selectedCoords ?? geo.coords
-  const { data: weather, isLoading: weatherLoading, isError: weatherError } = useWeatherQuery(activeCoords)
+  const { data: weather, isLoading: weatherLoading, isError: weatherError, isPlaceholderData, dataUpdatedAt } = useWeatherQuery(activeCoords)
   const { recentSearches, addSearch } = useRecentSearches()
 
-  const displayName = cityName ?? geo.city ?? 'Your location'
+  useEffect(() => {
+    if (pendingCityName && !isPlaceholderData) {
+      setCityName(pendingCityName)
+      setPendingCityName(null)
+    }
+  }, [pendingCityName, isPlaceholderData])
+
+  const displayName = isPlaceholderData
+    ? (cityName ?? geo.city ?? 'Your location')
+    : (pendingCityName ?? cityName ?? geo.city ?? 'Your location')
+
+  const transitionKey = (geo.isLoading || weatherLoading)
+    ? 'loading'
+    : weatherError
+      ? 'error-weather'
+      : (geo.error && !weather)
+        ? 'error-geo'
+        : `weather-${dataUpdatedAt}`
 
   const handleCitySelect = useCallback(
     async (city: GeocodedCity) => {
       setSelectedCoords({ latitude: city.latitude, longitude: city.longitude })
-      setCityName(city.name)
+      setPendingCityName(city.name)
       await addSearch(city)
     },
     [addSearch],
@@ -82,7 +101,7 @@ function App() {
 
   const handleRecentSelect = useCallback((search: RecentSearch) => {
     setSelectedCoords({ latitude: search.latitude, longitude: search.longitude })
-    setCityName(search.cityName)
+    setPendingCityName(search.cityName)
   }, [])
 
   const prefersDark = usePrefersDark()
@@ -100,20 +119,22 @@ function App() {
           </>
         }
         main={
-          geo.isLoading || weatherLoading ? (
-            <WeatherSkeleton />
-          ) : weatherError ? (
-            <div className={`text-center ${theme.isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-              <p className="text-lg font-medium mb-2">Unable to load weather</p>
-              <p className="text-sm">Try searching for a city above</p>
-            </div>
-          ) : geo.error && !weather ? (
-            <div className={`text-center ${theme.isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-              <p className="text-lg font-medium mb-2">{geo.error}</p>
-            </div>
-          ) : weather ? (
-            <WeatherDisplay weather={weather} cityName={displayName} isDark={theme.isDark} />
-          ) : null
+          <ContentTransition contentKey={transitionKey}>
+            {geo.isLoading || weatherLoading ? (
+              <WeatherSkeleton />
+            ) : weatherError ? (
+              <div className={`animate-fade-in text-center ${theme.isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p className="text-lg font-medium mb-2">Unable to load weather</p>
+                <p className="text-sm">Try searching for a city above</p>
+              </div>
+            ) : geo.error && !weather ? (
+              <div className={`animate-fade-in text-center ${theme.isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p className="text-lg font-medium mb-2">{geo.error}</p>
+              </div>
+            ) : weather ? (
+              <WeatherDisplay weather={weather} cityName={displayName} isDark={theme.isDark} />
+            ) : null}
+          </ContentTransition>
         }
         footer={<RecentSearches searches={recentSearches} onSelect={handleRecentSelect} isDark={theme.isDark} />}
       />

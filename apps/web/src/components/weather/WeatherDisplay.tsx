@@ -19,24 +19,26 @@ export function WeatherDisplay({ weather, cityName, isDark = false }: WeatherDis
       aria-live="polite"
       aria-label={`Current weather: ${Math.round(weather.temperature)} degrees Celsius in ${cityName}, ${getWeatherLabel(weather.weatherCode)}`}
     >
-      <WeatherIcon code={weather.weatherCode} isDay={weather.isDay} size="lg" />
+      <div className="animate-weather-enter" style={{ animationDelay: '0ms' }}>
+        <WeatherIcon code={weather.weatherCode} isDay={weather.isDay} size="lg" />
+      </div>
 
-      <p className={`text-lg md:text-xl font-semibold drop-shadow-sm ${primary}`}>
+      <p className={`animate-weather-enter text-lg md:text-xl font-semibold drop-shadow-sm ${primary}`} style={{ animationDelay: '75ms' }}>
         {cityName}
       </p>
 
       <p
-        className={`text-[clamp(5rem,15vw,10rem)] font-light leading-none tracking-tight drop-shadow-sm ${primary}`}
-        style={{ fontVariantNumeric: 'tabular-nums' }}
+        className={`animate-weather-enter text-[clamp(5rem,15vw,10rem)] font-light leading-none tracking-tight drop-shadow-sm ${primary}`}
+        style={{ fontVariantNumeric: 'tabular-nums', animationDelay: '150ms' }}
       >
         {formatTemperature(weather.temperature)}
       </p>
 
-      <p className={`text-sm font-medium mb-4 ${secondary}`}>
+      <p className={`animate-weather-enter text-sm font-medium mb-4 ${secondary}`} style={{ animationDelay: '225ms' }}>
         {getWeatherLabel(weather.weatherCode)}
       </p>
 
-      <div className={`flex gap-6 text-sm ${secondary}`}>
+      <div className={`animate-weather-enter flex gap-6 text-sm ${secondary}`} style={{ animationDelay: '300ms' }}>
         <div className="flex items-center gap-1.5" title="Humidity">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />

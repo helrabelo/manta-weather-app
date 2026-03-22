@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import type { WeatherData } from '@manta/shared'
 import { apiGet } from '../client'
 import { weatherKeys } from '../keys'
@@ -13,5 +13,6 @@ export function useWeatherQuery(coords: { latitude: number; longitude: number } 
       }),
     enabled: !!coords,
     staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
   })
 }
