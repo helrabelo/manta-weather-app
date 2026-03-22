@@ -6,9 +6,13 @@ import { getWeatherLabel } from '@/lib/weather-codes'
 interface WeatherDisplayProps {
   weather: WeatherData
   cityName: string
+  isDark?: boolean
 }
 
-export function WeatherDisplay({ weather, cityName }: WeatherDisplayProps) {
+export function WeatherDisplay({ weather, cityName, isDark = false }: WeatherDisplayProps) {
+  const primary = isDark ? 'text-gray-100' : 'text-gray-900'
+  const secondary = isDark ? 'text-gray-300' : 'text-gray-700'
+
   return (
     <div
       className="flex flex-col items-center justify-center gap-2"
@@ -17,22 +21,22 @@ export function WeatherDisplay({ weather, cityName }: WeatherDisplayProps) {
     >
       <WeatherIcon code={weather.weatherCode} isDay={weather.isDay} size="lg" />
 
-      <p className="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">
+      <p className={`text-lg md:text-xl font-semibold drop-shadow-sm ${primary}`}>
         {cityName}
       </p>
 
       <p
-        className="text-[clamp(5rem,15vw,10rem)] font-extralight leading-none tracking-tight text-gray-900 dark:text-gray-100"
+        className={`text-[clamp(5rem,15vw,10rem)] font-light leading-none tracking-tight drop-shadow-sm ${primary}`}
         style={{ fontVariantNumeric: 'tabular-nums' }}
       >
         {formatTemperature(weather.temperature)}
       </p>
 
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+      <p className={`text-sm font-medium mb-4 ${secondary}`}>
         {getWeatherLabel(weather.weatherCode)}
       </p>
 
-      <div className="flex gap-6 text-sm text-gray-600 dark:text-gray-400">
+      <div className={`flex gap-6 text-sm ${secondary}`}>
         <div className="flex items-center gap-1.5" title="Humidity">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />

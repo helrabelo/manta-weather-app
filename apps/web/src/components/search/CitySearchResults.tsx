@@ -10,11 +10,13 @@ interface CitySearchResultsProps {
   query: string
 }
 
+const dropdownClass = 'absolute top-full left-0 right-0 mt-1 rounded-lg bg-white shadow-lg border border-gray-200 p-3 z-50'
+
 export const CitySearchResults = forwardRef<HTMLUListElement, CitySearchResultsProps>(
   function CitySearchResults({ cities, isLoading, isError, activeIndex, onSelect, query }, ref) {
     if (isLoading) {
       return (
-        <div className="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-3 z-50">
+        <div className={dropdownClass}>
           <p className="text-sm text-gray-400 text-center">Searching...</p>
         </div>
       )
@@ -22,15 +24,15 @@ export const CitySearchResults = forwardRef<HTMLUListElement, CitySearchResultsP
 
     if (isError) {
       return (
-        <div className="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-3 z-50">
-          <p className="text-sm text-red-400 text-center">Failed to search. Try again.</p>
+        <div className={dropdownClass}>
+          <p className="text-sm text-red-500 text-center">Failed to search. Try again.</p>
         </div>
       )
     }
 
     if (query && cities.length === 0) {
       return (
-        <div className="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-3 z-50">
+        <div className={dropdownClass}>
           <p className="text-sm text-gray-400 text-center">No cities found</p>
         </div>
       )
@@ -43,7 +45,7 @@ export const CitySearchResults = forwardRef<HTMLUListElement, CitySearchResultsP
         ref={ref}
         id="city-search-listbox"
         role="listbox"
-        className="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50 max-h-64 overflow-y-auto"
+        className="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white shadow-lg border border-gray-200 overflow-hidden z-50 max-h-64 overflow-y-auto"
       >
         {cities.map((city, index) => (
           <li
@@ -53,8 +55,8 @@ export const CitySearchResults = forwardRef<HTMLUListElement, CitySearchResultsP
             aria-selected={index === activeIndex}
             className={`px-4 py-2.5 cursor-pointer text-sm transition-colors ${
               index === activeIndex
-                ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                ? 'bg-blue-50 text-blue-900'
+                : 'text-gray-700 hover:bg-gray-50'
             }`}
             onMouseDown={(e) => {
               e.preventDefault()

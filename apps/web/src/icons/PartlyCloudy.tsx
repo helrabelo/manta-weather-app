@@ -11,7 +11,7 @@ export function PartlyCloudy({ className, isDay = true }: { className?: string; 
       )}
       <path
         d="M38 68c0-13.3 10.7-24 24-24 10.8 0 20 7.2 23 17h1c8.8 0 16 7.2 16 16s-7.2 16-16 16H42c-8.8 0-16-7.2-16-16 0-7.4 5-13.6 12-15.4V68z"
-        fill="#E2E8F0"
+        fill="#B0BEC5"
         className="animate-drift"
       />
     </svg>

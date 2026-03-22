@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useSyncExternalStore } from 'react'
 import type { GeocodedCity, RecentSearch } from '@manta/shared'
 import { AppShell } from '@/components/layout/AppShell'
 import { CitySearch } from '@/components/search/CitySearch'
@@ -10,33 +10,53 @@ import { useWeatherQuery } from '@/api/hooks/useWeather'
 import { useRecentSearches } from '@/api/hooks/useRecentSearches'
 import { getWeatherCondition } from '@/lib/weather-codes'
 
-function getBackgroundClass(weatherCode?: number, isDay?: boolean): string {
-  if (weatherCode == null || isDay == null) return 'bg-gray-200 dark:bg-gray-900'
+interface WeatherTheme {
+  bg: string
+  isDark: boolean
+}
+
+const darkMql = window.matchMedia('(prefers-color-scheme: dark)')
+function subscribeDarkMode(cb: () => void) {
+  darkMql.addEventListener('change', cb)
+  return () => darkMql.removeEventListener('change', cb)
+}
+function usePrefersDark() {
+  return useSyncExternalStore(subscribeDarkMode, () => darkMql.matches)
+}
+
+function getWeatherTheme(weatherCode: number | undefined, isDay: boolean | undefined, prefersDark: boolean): WeatherTheme {
+  if (weatherCode == null || isDay == null) {
+    return prefersDark
+      ? { bg: 'bg-gray-900', isDark: true }
+      : { bg: 'bg-gray-200', isDark: false }
+  }
 
   const condition = getWeatherCondition(weatherCode)
 
-  if (!isDay) return 'bg-gradient-to-b from-slate-800 to-slate-900'
+  if (!isDay) return { bg: 'bg-gradient-to-b from-slate-800 to-slate-900', isDark: true }
 
   switch (condition) {
     case 'clear':
-      return 'bg-gradient-to-b from-sky-200 to-sky-100'
+      return { bg: 'bg-gradient-to-b from-sky-300 to-sky-100', isDark: false }
     case 'partly-cloudy':
-      return 'bg-gradient-to-b from-sky-200 to-gray-200'
+      return { bg: 'bg-gradient-to-b from-sky-300 to-gray-200', isDark: false }
     case 'cloudy':
-      return 'bg-gradient-to-b from-gray-300 to-gray-200'
+      return { bg: 'bg-gradient-to-b from-gray-400 to-gray-300', isDark: false }
     case 'fog':
-      return 'bg-gradient-to-b from-gray-300 to-gray-100'
+      return { bg: 'bg-gradient-to-b from-gray-400 to-gray-200', isDark: false }
     case 'drizzle':
     case 'rain':
     case 'freezing-rain':
     case 'showers':
-      return 'bg-gradient-to-b from-slate-400 to-slate-300'
+      return { bg: 'bg-gradient-to-b from-slate-500 to-slate-400', isDark: true }
     case 'snow':
-      return 'bg-gradient-to-b from-blue-100 to-gray-100'
+      return { bg: 'bg-gradient-to-b from-blue-200 to-gray-100', isDark: false }
     case 'thunderstorm':
-      return 'bg-gradient-to-b from-slate-600 to-slate-400'
+      return { bg: 'bg-gradient-to-b from-slate-700 to-slate-500', isDark: true }
     default:
-      return 'bg-gray-200 dark:bg-gray-900'
+      return prefersDark
+        ? { bg: 'bg-gray-900', isDark: true }
+        : { bg: 'bg-gray-200', isDark: false }
   }
 }
 
@@ -65,36 +85,37 @@ function App() {
     setCityName(search.cityName)
   }, [])
 
-  const bgClass = getBackgroundClass(weather?.weatherCode, weather?.isDay)
+  const prefersDark = usePrefersDark()
+  const theme = getWeatherTheme(weather?.weatherCode, weather?.isDay, prefersDark)
 
   return (
-    <div className={`${bgClass} transition-all duration-1000`}>
+    <div className={`${theme.bg} transition-all duration-1000`}>
       <AppShell
         header={
           <>
-            <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-200 select-none">
+            <h1 className={`text-lg font-bold select-none drop-shadow-sm ${theme.isDark ? 'text-gray-100' : 'text-gray-900'}`}>
               MantaWeather
             </h1>
-            <CitySearch onSelect={handleCitySelect} />
+            <CitySearch onSelect={handleCitySelect} isDark={theme.isDark} />
           </>
         }
         main={
           geo.isLoading || weatherLoading ? (
             <WeatherSkeleton />
           ) : weatherError ? (
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              <p className="text-lg mb-2">Unable to load weather</p>
+            <div className={`text-center ${theme.isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <p className="text-lg font-medium mb-2">Unable to load weather</p>
               <p className="text-sm">Try searching for a city above</p>
             </div>
           ) : geo.error && !weather ? (
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              <p className="text-lg mb-2">{geo.error}</p>
+            <div className={`text-center ${theme.isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <p className="text-lg font-medium mb-2">{geo.error}</p>
             </div>
           ) : weather ? (
-            <WeatherDisplay weather={weather} cityName={displayName} />
+            <WeatherDisplay weather={weather} cityName={displayName} isDark={theme.isDark} />
           ) : null
         }
-        footer={<RecentSearches searches={recentSearches} onSelect={handleRecentSelect} />}
+        footer={<RecentSearches searches={recentSearches} onSelect={handleRecentSelect} isDark={theme.isDark} />}
       />
     </div>
   )

@@ -5,9 +5,10 @@ import { CitySearchResults } from './CitySearchResults'
 
 interface CitySearchProps {
   onSelect: (city: GeocodedCity) => void
+  isDark?: boolean
 }
 
-export function CitySearch({ onSelect }: CitySearchProps) {
+export function CitySearch({ onSelect, isDark = false }: CitySearchProps) {
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -83,6 +84,10 @@ export function CitySearch({ onSelect }: CitySearchProps) {
 
   const activeDescendant = activeIndex >= 0 ? `city-option-${activeIndex}` : undefined
 
+  const inputClasses = isDark
+    ? 'bg-white/10 text-gray-100 placeholder:text-gray-400 border-white/15'
+    : 'bg-white/90 text-gray-900 placeholder:text-gray-500 border-gray-300'
+
   return (
     <div className="relative w-full max-w-xs">
       <div className="relative">
@@ -106,9 +111,9 @@ export function CitySearch({ onSelect }: CitySearchProps) {
           }}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="w-full rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-4 py-2.5 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 border border-gray-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-blue-400/50 transition-shadow"
+          className={`w-full rounded-lg backdrop-blur-sm px-4 py-2.5 pr-10 text-sm border shadow-sm outline-none focus:ring-2 focus:ring-blue-400/50 transition-shadow ${inputClasses}`}
         />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <div className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-gray-400' : 'text-gray-400'}`}>
           {isLoading ? (
             <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" opacity="0.25" />
