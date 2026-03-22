@@ -39,7 +39,7 @@ describe('WeatherDisplay', () => {
   it('has accessible aria-label with full context', () => {
     render(<WeatherDisplay weather={mockWeather} cityName="Oslo" />)
 
-    const region = screen.getByLabelText(/Current weather: 22 degrees Celsius in Oslo/i)
+    const region = screen.getByLabelText(/Current weather: 22 degrees Celsius in Oslo, Partly cloudy/i)
     expect(region).toBeInTheDocument()
   })
 

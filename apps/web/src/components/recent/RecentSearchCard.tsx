@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import type { RecentSearch } from '@manta/shared'
 import { WeatherIcon } from '@/components/weather/WeatherIcon'
 import { formatTemperature } from '@/lib/format'
+import { useUnits } from '@/context/UnitsContext'
 
 interface RecentSearchCardProps {
   search: RecentSearch
@@ -11,6 +12,8 @@ interface RecentSearchCardProps {
 }
 
 export function RecentSearchCard({ search, onSelect, isDark = false, style }: RecentSearchCardProps) {
+  const { units } = useUnits()
+
   return (
     <button
       type="button"
@@ -21,7 +24,7 @@ export function RecentSearchCard({ search, onSelect, isDark = false, style }: Re
           : 'bg-white/80 border border-gray-300/60 hover:bg-white/95'
       }`}
       style={style}
-      aria-label={`${search.cityName}: ${Math.round(search.temperature)} degrees`}
+      aria-label={`${search.cityName}: ${formatTemperature(search.temperature, units)}`}
     >
       <div className="text-left">
         <p className={`text-sm font-semibold truncate max-w-[100px] ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
@@ -31,7 +34,7 @@ export function RecentSearchCard({ search, onSelect, isDark = false, style }: Re
           className={`text-lg font-light ${isDark ? 'text-gray-200' : 'text-gray-800'}`}
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
-          {formatTemperature(search.temperature)}
+          {formatTemperature(search.temperature, units)}
         </p>
       </div>
       <WeatherIcon code={search.weatherCode} isDay={search.isDay} size="sm" />

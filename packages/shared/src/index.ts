@@ -1,5 +1,7 @@
 export type {
   WeatherData,
+  HourlyForecast,
+  DailyForecast,
   GeocodedCity,
 } from './weather'
 

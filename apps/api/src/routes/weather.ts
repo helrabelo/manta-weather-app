@@ -35,19 +35,31 @@ weatherRoutes.get('/weather', async (c) => {
   const cacheRes = await stub.fetch(cacheUrl.toString())
   const cached = await cacheRes.json() as { data: unknown; expiresAt: number } | null
 
-  if (cached && cached.expiresAt > Date.now()) {
+  const now = Date.now()
+  const isStale = cached && cached.expiresAt <= now
+  const isFresh = cached && cached.expiresAt > now
+
+  if (isFresh) {
     return c.json(cached.data)
   }
 
-  // Cache miss — fetch fresh
-  const weather = await fetchWeather(latitude, longitude)
+  // Stale or miss — try to fetch fresh data
+  try {
+    const weather = await fetchWeather(latitude, longitude)
 
-  // Store in cache (fire and forget)
-  stub.fetch(new Request('https://do/cache', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key: cacheKey, data: weather, ttl: CACHE_TTL }),
-  }))
+    // Store in cache (fire and forget)
+    stub.fetch(new Request('https://do/cache', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: cacheKey, data: weather, ttl: CACHE_TTL }),
+    }))
 
-  return c.json(weather)
+    return c.json(weather)
+  } catch (err) {
+    // If we have stale data and the API failed, serve stale
+    if (isStale) {
+      return c.json(cached.data)
+    }
+    throw err
+  }
 })

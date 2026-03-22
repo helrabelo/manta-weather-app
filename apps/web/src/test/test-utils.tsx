@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { UnitsProvider } from '@/context/UnitsContext'
 
 function createTestQueryClient() {
   return new QueryClient({
@@ -15,7 +16,11 @@ function createTestQueryClient() {
 
 function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = createTestQueryClient()
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <UnitsProvider>{children}</UnitsProvider>
+    </QueryClientProvider>
+  )
 }
 
 function customRender(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {

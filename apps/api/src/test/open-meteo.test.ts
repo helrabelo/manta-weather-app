@@ -38,6 +38,8 @@ describe('open-meteo service', () => {
         windSpeed: 12,
         windDirection: 180,
         timezone: 'Europe/Oslo',
+        hourly: [],
+        daily: [],
       })
 
       expect(mockFetch).toHaveBeenCalledOnce()

@@ -20,7 +20,7 @@ export function AppShell({ header, main, footer }: AppShellProps) {
         {header}
       </header>
 
-      <main id="main-content" className="flex items-center justify-center px-6 pb-8">
+      <main id="main-content" className="flex items-start justify-center px-6 pb-8 overflow-y-auto">
         {main}
       </main>
 

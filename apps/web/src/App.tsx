@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useSyncExternalStore } from 'react'
 import type { GeocodedCity, RecentSearch } from '@manta/shared'
 import { AppShell } from '@/components/layout/AppShell'
 import { CitySearch } from '@/components/search/CitySearch'
+import { UnitToggle } from '@/components/UnitToggle'
 import { WeatherDisplay } from '@/components/weather/WeatherDisplay'
 import { RecentSearches } from '@/components/recent/RecentSearches'
 import { WeatherSkeleton } from '@/components/ui/WeatherSkeleton'
@@ -61,10 +62,36 @@ function getWeatherTheme(weatherCode: number | undefined, isDay: boolean | undef
   }
 }
 
+function getInitialFromUrl(): { coords: { latitude: number; longitude: number }; city: string } | null {
+  const params = new URLSearchParams(window.location.search)
+  const lat = params.get('lat')
+  const lon = params.get('lon')
+  const city = params.get('city')
+  if (lat && lon && city) {
+    const latitude = parseFloat(lat)
+    const longitude = parseFloat(lon)
+    if (!isNaN(latitude) && !isNaN(longitude)) {
+      return { coords: { latitude, longitude }, city }
+    }
+  }
+  return null
+}
+
+function updateUrl(city: string, latitude: number, longitude: number) {
+  const url = new URL(window.location.href)
+  url.searchParams.set('city', city)
+  url.searchParams.set('lat', latitude.toFixed(4))
+  url.searchParams.set('lon', longitude.toFixed(4))
+  window.history.replaceState(null, '', url.toString())
+}
+
 function App() {
   const geo = useGeolocation()
-  const [selectedCoords, setSelectedCoords] = useState<{ latitude: number; longitude: number } | null>(null)
-  const [cityName, setCityName] = useState<string | null>(null)
+  const urlState = getInitialFromUrl()
+  const [selectedCoords, setSelectedCoords] = useState<{ latitude: number; longitude: number } | null>(
+    urlState?.coords ?? null,
+  )
+  const [cityName, setCityName] = useState<string | null>(urlState?.city ?? null)
   const [pendingCityName, setPendingCityName] = useState<string | null>(null)
 
   const activeCoords = selectedCoords ?? geo.coords
@@ -94,6 +121,7 @@ function App() {
     async (city: GeocodedCity) => {
       setSelectedCoords({ latitude: city.latitude, longitude: city.longitude })
       setPendingCityName(city.name)
+      updateUrl(city.name, city.latitude, city.longitude)
       await addSearch(city)
     },
     [addSearch],
@@ -102,6 +130,7 @@ function App() {
   const handleRecentSelect = useCallback((search: RecentSearch) => {
     setSelectedCoords({ latitude: search.latitude, longitude: search.longitude })
     setPendingCityName(search.cityName)
+    updateUrl(search.cityName, search.latitude, search.longitude)
   }, [])
 
   const prefersDark = usePrefersDark()
@@ -112,9 +141,12 @@ function App() {
       <AppShell
         header={
           <>
-            <h1 className={`text-lg font-bold select-none drop-shadow-sm ${theme.isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-              MantaWeather
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className={`text-lg font-bold select-none drop-shadow-sm ${theme.isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                MantaWeather
+              </h1>
+              <UnitToggle isDark={theme.isDark} />
+            </div>
             <CitySearch onSelect={handleCitySelect} isDark={theme.isDark} />
           </>
         }
