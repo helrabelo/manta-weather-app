@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import type { GeocodedCity } from '@manta/shared'
 import { useGeocodeQuery } from '@/api/hooks/useGeocode'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { CitySearchResults } from './CitySearchResults'
 
 interface CitySearchProps {
@@ -10,36 +11,20 @@ interface CitySearchProps {
 
 export function CitySearch({ onSelect, isDark = false }: CitySearchProps) {
   const [query, setQuery] = useState('')
-  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const debouncedQuery = useDebouncedValue(query.trim(), 300)
   const [isOpen, setIsOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const listboxRef = useRef<HTMLUListElement>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const { data: cities = [], isLoading, isError } = useGeocodeQuery(debouncedQuery, {
     enabled: isOpen,
   })
 
-  useEffect(() => {
-    clearTimeout(debounceRef.current)
-    if (query.trim().length >= 2) {
-      debounceRef.current = setTimeout(() => {
-        setDebouncedQuery(query.trim())
-        setIsOpen(true)
-      }, 300)
-    } else {
-      setDebouncedQuery('')
-      setIsOpen(false)
-    }
-    return () => clearTimeout(debounceRef.current)
-  }, [query])
-
   const handleSelect = useCallback(
     (city: GeocodedCity) => {
       onSelect(city)
       setQuery('')
-      setDebouncedQuery('')
       setIsOpen(false)
       setActiveIndex(-1)
       inputRef.current?.blur()
@@ -103,8 +88,14 @@ export function CitySearch({ onSelect, isDark = false }: CitySearchProps) {
           placeholder="Search city..."
           value={query}
           onChange={(e) => {
-            setQuery(e.target.value)
+            const value = e.target.value
+            setQuery(value)
             setActiveIndex(-1)
+            if (value.trim().length >= 2) {
+              setIsOpen(true)
+            } else {
+              setIsOpen(false)
+            }
           }}
           onFocus={() => {
             if (debouncedQuery.length >= 2) setIsOpen(true)

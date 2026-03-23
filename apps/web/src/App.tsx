@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useSyncExternalStore } from 'react'
+import { useState, useCallback, useSyncExternalStore } from 'react'
 import type { GeocodedCity, RecentSearch } from '@manta/shared'
 import { AppShell } from '@/components/layout/AppShell'
 import { CitySearch } from '@/components/search/CitySearch'
@@ -88,26 +88,19 @@ function updateUrl(city: string, latitude: number, longitude: number) {
 function App() {
   const geo = useGeolocation()
   const urlState = getInitialFromUrl()
-  const [selectedCoords, setSelectedCoords] = useState<{ latitude: number; longitude: number } | null>(
-    urlState?.coords ?? null,
-  )
-  const [cityName, setCityName] = useState<string | null>(urlState?.city ?? null)
-  const [pendingCityName, setPendingCityName] = useState<string | null>(null)
+  const [selection, setSelection] = useState<{
+    coords: { latitude: number; longitude: number }
+    name: string
+    previousName: string | null
+  } | null>(urlState ? { coords: urlState.coords, name: urlState.city, previousName: null } : null)
 
-  const activeCoords = selectedCoords ?? geo.coords
+  const activeCoords = selection?.coords ?? geo.coords
   const { data: weather, isLoading: weatherLoading, isError: weatherError, isPlaceholderData, dataUpdatedAt } = useWeatherQuery(activeCoords)
   const { recentSearches, addSearch } = useRecentSearches()
 
-  useEffect(() => {
-    if (pendingCityName && !isPlaceholderData) {
-      setCityName(pendingCityName)
-      setPendingCityName(null)
-    }
-  }, [pendingCityName, isPlaceholderData])
-
-  const displayName = isPlaceholderData
-    ? (cityName ?? geo.city ?? 'Your location')
-    : (pendingCityName ?? cityName ?? geo.city ?? 'Your location')
+  const displayName = (isPlaceholderData
+    ? (selection?.previousName ?? geo.city)
+    : (selection?.name ?? geo.city)) ?? 'Your location'
 
   const transitionKey = (geo.isLoading || weatherLoading)
     ? 'loading'
@@ -119,8 +112,11 @@ function App() {
 
   const handleCitySelect = useCallback(
     async (city: GeocodedCity) => {
-      setSelectedCoords({ latitude: city.latitude, longitude: city.longitude })
-      setPendingCityName(city.name)
+      setSelection((prev) => ({
+        coords: { latitude: city.latitude, longitude: city.longitude },
+        name: city.name,
+        previousName: prev?.name ?? null,
+      }))
       updateUrl(city.name, city.latitude, city.longitude)
       await addSearch(city)
     },
@@ -128,8 +124,11 @@ function App() {
   )
 
   const handleRecentSelect = useCallback((search: RecentSearch) => {
-    setSelectedCoords({ latitude: search.latitude, longitude: search.longitude })
-    setPendingCityName(search.cityName)
+    setSelection((prev) => ({
+      coords: { latitude: search.latitude, longitude: search.longitude },
+      name: search.cityName,
+      previousName: prev?.name ?? null,
+    }))
     updateUrl(search.cityName, search.latitude, search.longitude)
   }, [])
 

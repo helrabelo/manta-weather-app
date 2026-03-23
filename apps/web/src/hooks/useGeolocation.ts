@@ -1,28 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import type { GeolocationResponse } from '@manta/shared'
 import { apiGet } from '@/api/client'
 
-interface GeolocationState {
-  coords: { latitude: number; longitude: number } | null
+interface GeolocationData {
+  coords: { latitude: number; longitude: number }
   city: string | null
-  isLoading: boolean
-  error: string | null
-  source: 'browser' | 'ip' | null
+  source: 'browser' | 'ip'
 }
 
-export function useGeolocation(): GeolocationState {
-  const [state, setState] = useState<GeolocationState>({
-    coords: null,
-    city: null,
-    isLoading: true,
-    error: null,
-    source: null,
-  })
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function detectLocation() {
+export function useGeolocation() {
+  const { data, isLoading, error } = useQuery<GeolocationData>({
+    queryKey: ['geolocation'],
+    queryFn: async () => {
       // Try browser geolocation first
       try {
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -32,60 +21,39 @@ export function useGeolocation(): GeolocationState {
             maximumAge: 10 * 60 * 1000,
           })
         })
-
-        if (cancelled) return
-
-        setState({
+        return {
           coords: {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           },
           city: null,
-          isLoading: false,
-          error: null,
-          source: 'browser',
-        })
-        return
+          source: 'browser' as const,
+        }
       } catch {
         // Browser geolocation failed, try IP fallback
       }
 
       // IP-based fallback via CF worker
-      try {
-        const geo = await apiGet<GeolocationResponse>('/api/geolocation')
-
-        if (cancelled) return
-
-        if (geo.latitude && geo.longitude) {
-          setState({
-            coords: { latitude: geo.latitude, longitude: geo.longitude },
-            city: geo.city,
-            isLoading: false,
-            error: null,
-            source: 'ip',
-          })
-          return
+      const geo = await apiGet<GeolocationResponse>('/api/geolocation')
+      if (geo.latitude && geo.longitude) {
+        return {
+          coords: { latitude: geo.latitude, longitude: geo.longitude },
+          city: geo.city,
+          source: 'ip' as const,
         }
-      } catch {
-        // IP fallback also failed
       }
 
-      if (!cancelled) {
-        setState({
-          coords: null,
-          city: null,
-          isLoading: false,
-          error: 'Unable to detect location. Please search for a city.',
-          source: null,
-        })
-      }
-    }
+      throw new Error('Unable to detect location. Please search for a city.')
+    },
+    staleTime: Infinity,
+    retry: false,
+  })
 
-    detectLocation()
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  return state
+  return {
+    coords: data?.coords ?? null,
+    city: data?.city ?? null,
+    isLoading,
+    error: error instanceof Error ? error.message : null,
+    source: data?.source ?? null,
+  }
 }
