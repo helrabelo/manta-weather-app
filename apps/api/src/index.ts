@@ -5,6 +5,7 @@ import { geocodeRoutes } from './routes/geocode'
 import { recentRoutes } from './routes/recent'
 import { wsRoutes } from './routes/ws'
 import { geolocationRoutes } from './routes/geolocation'
+import { rateLimit } from './middleware/rate-limit'
 
 export { WeatherStore } from './durable-objects/WeatherStore'
 
@@ -15,6 +16,7 @@ type Bindings = {
 const app = new Hono<{ Bindings: Bindings }>()
 
 app.use('/*', cors())
+app.use('/api/*', rateLimit)
 
 app.get('/api/health', (c) => c.json({ status: 'ok' }))
 

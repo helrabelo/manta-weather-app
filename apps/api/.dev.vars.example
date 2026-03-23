@@ -1,0 +1,4 @@
+# Cloudflare Workers local development variables.
+# Copy this file to .dev.vars and fill in values as needed.
+#
+# No secrets are required — the app uses Open-Meteo (free, no API key).

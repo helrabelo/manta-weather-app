@@ -23,6 +23,10 @@ recentRoutes.post('/recent', async (c) => {
     return c.json({ error: 'cityName, country, latitude, and longitude are required', status: 400 }, 400)
   }
 
+  if (body.latitude < -90 || body.latitude > 90 || body.longitude < -180 || body.longitude > 180) {
+    return c.json({ error: 'latitude must be between -90 and 90, longitude between -180 and 180', status: 400 }, 400)
+  }
+
   // Fetch current weather for this city
   const weather = await fetchWeather(body.latitude, body.longitude)
 

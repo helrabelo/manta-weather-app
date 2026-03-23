@@ -24,6 +24,10 @@ weatherRoutes.get('/weather', async (c) => {
     return c.json({ error: 'lat and lon must be valid numbers', status: 400 }, 400)
   }
 
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+    return c.json({ error: 'lat must be between -90 and 90, lon between -180 and 180', status: 400 }, 400)
+  }
+
   // Round to 2 decimal places for cache key stability
   const cacheKey = `cache:weather:${latitude.toFixed(2)}:${longitude.toFixed(2)}`
 
@@ -47,8 +51,7 @@ weatherRoutes.get('/weather', async (c) => {
   try {
     const weather = await fetchWeather(latitude, longitude)
 
-    // Store in cache (fire and forget)
-    stub.fetch(new Request('https://do/cache', {
+    await stub.fetch(new Request('https://do/cache', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key: cacheKey, data: weather, ttl: CACHE_TTL }),
