@@ -8,3 +8,4 @@ dist
 STATE.md
 coverage
 .turbo
+*.tsbuildinfo
