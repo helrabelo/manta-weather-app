@@ -27,7 +27,7 @@ export function HourlyForecast({ hours, isDark = false }: HourlyForecastProps) {
         {hours.map((hour, i) => (
           <div
             key={hour.time}
-            className={`flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg flex-shrink-0 ${
+            className={`flex flex-col items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg flex-shrink-0 ${
               i === 0
                 ? isDark ? 'bg-white/10' : 'bg-black/5'
                 : ''

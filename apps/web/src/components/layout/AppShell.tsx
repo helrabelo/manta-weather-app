@@ -16,15 +16,15 @@ export function AppShell({ header, main, footer }: AppShellProps) {
         Skip to main content
       </a>
 
-      <header className="flex items-center justify-between px-6 py-4 md:px-10 md:py-6">
+      <header className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4 md:px-10 md:py-6">
         {header}
       </header>
 
-      <main id="main-content" className="flex items-start justify-center px-6 pb-8 overflow-y-auto">
+      <main id="main-content" className="flex items-start justify-center px-4 pb-6 sm:px-6 sm:pb-8 overflow-y-auto">
         {main}
       </main>
 
-      <footer className="px-6 pb-6 md:px-10 md:pb-8">
+      <footer className="px-4 pb-4 sm:px-6 sm:pb-6 md:px-10 md:pb-8">
         {footer}
       </footer>
     </div>

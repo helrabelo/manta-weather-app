@@ -140,7 +140,7 @@ function App() {
       <AppShell
         header={
           <>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between sm:justify-start gap-3">
               <h1 className={`text-lg font-bold select-none drop-shadow-sm ${theme.isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                 MantaWeather
               </h1>
