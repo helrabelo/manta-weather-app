@@ -29,7 +29,7 @@ export function DailyForecast({ days, isDark = false }: DailyForecastProps) {
         {days.map((day, i) => (
           <div
             key={day.date}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+            className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg ${
               i === 0
                 ? isDark ? 'bg-white/10' : 'bg-black/5'
                 : ''

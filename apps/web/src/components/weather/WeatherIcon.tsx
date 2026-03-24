@@ -20,9 +20,9 @@ interface WeatherIconProps {
 }
 
 const sizeClasses = {
-  sm: 'w-10 h-10',
-  md: 'w-16 h-16',
-  lg: 'w-40 h-40 md:w-52 md:h-52',
+  sm: 'w-8 h-8 sm:w-10 sm:h-10',
+  md: 'w-14 h-14 sm:w-16 sm:h-16',
+  lg: 'w-28 h-28 sm:w-40 sm:h-40 md:w-52 md:h-52',
 }
 
 export function WeatherIcon({ code, isDay, className = '', size = 'lg' }: WeatherIconProps) {
