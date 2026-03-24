@@ -42,7 +42,7 @@ export function WeatherDisplay({ weather, cityName, isDark = false }: WeatherDis
         {getWeatherLabel(weather.weatherCode)}
       </p>
 
-      <div className={`animate-weather-enter flex gap-6 text-sm ${secondary}`} style={{ animationDelay: '300ms' }}>
+      <div className={`animate-weather-enter flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm ${secondary}`} style={{ animationDelay: '300ms' }}>
         <div className="flex items-center gap-1.5" title="Humidity">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />
@@ -66,7 +66,7 @@ export function WeatherDisplay({ weather, cityName, isDark = false }: WeatherDis
       </div>
 
       {weather.hourly && weather.hourly.length > 0 && (
-        <div className="animate-weather-enter w-full max-w-lg mt-6" style={{ animationDelay: '400ms' }}>
+        <div className="animate-weather-enter w-full max-w-lg mt-6 -mx-4 px-4 sm:mx-0 sm:px-0" style={{ animationDelay: '400ms' }}>
           <HourlyForecast hours={weather.hourly} isDark={isDark} />
         </div>
       )}

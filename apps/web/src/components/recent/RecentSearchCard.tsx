@@ -18,7 +18,7 @@ export function RecentSearchCard({ search, onSelect, isDark = false, style }: Re
     <button
       type="button"
       onClick={() => onSelect(search)}
-      className={`flex items-center justify-between gap-3 min-w-[160px] md:min-w-[180px] snap-start rounded-xl backdrop-blur-sm px-4 py-3 shadow-sm transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 animate-slide-in ${
+      className={`flex items-center justify-between gap-2 sm:gap-3 min-w-[140px] sm:min-w-[160px] md:min-w-[180px] snap-start rounded-xl backdrop-blur-sm px-3 sm:px-4 py-2.5 sm:py-3 shadow-sm transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 animate-slide-in ${
         isDark
           ? 'bg-white/10 border border-white/15 hover:bg-white/15'
           : 'bg-white/80 border border-gray-300/60 hover:bg-white/95'

@@ -74,7 +74,7 @@ export function CitySearch({ onSelect, isDark = false }: CitySearchProps) {
     : 'bg-white/90 text-gray-900 placeholder:text-gray-500 border-gray-300'
 
   return (
-    <div className="relative w-full max-w-xs">
+    <div className="relative w-full sm:max-w-xs">
       <div className="relative">
         <input
           ref={inputRef}

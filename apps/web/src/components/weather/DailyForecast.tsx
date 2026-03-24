@@ -29,20 +29,20 @@ export function DailyForecast({ days, isDark = false }: DailyForecastProps) {
         {days.map((day, i) => (
           <div
             key={day.date}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+            className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg ${
               i === 0
                 ? isDark ? 'bg-white/10' : 'bg-black/5'
                 : ''
             }`}
           >
-            <span className={`text-sm w-12 flex-shrink-0 ${primary}`}>
+            <span className={`text-sm w-10 sm:w-12 flex-shrink-0 ${primary}`}>
               {formatDay(day.date, i)}
             </span>
             <WeatherIcon code={day.weatherCode} isDay={true} size="sm" />
-            <span className={`text-xs flex-1 truncate ${secondary}`} title={getWeatherLabel(day.weatherCode)}>
+            <span className={`text-xs flex-1 truncate hidden sm:inline ${secondary}`} title={getWeatherLabel(day.weatherCode)}>
               {getWeatherLabel(day.weatherCode)}
             </span>
-            <div className="flex gap-2 text-sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <div className="flex gap-2 text-sm flex-shrink-0" style={{ fontVariantNumeric: 'tabular-nums' }}>
               <span className={primary}>{formatTemperature(day.temperatureMax, units)}</span>
               <span className={secondary}>{formatTemperature(day.temperatureMin, units)}</span>
             </div>
